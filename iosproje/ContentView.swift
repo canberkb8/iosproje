@@ -22,7 +22,7 @@ struct ContentView_Previews: PreviewProvider {
 
 struct FirstPage : View {
     
-    @State var no = "kek"
+    @State var no = "second commit"
     
     var body : some View{
         VStack(spacing: 20){
