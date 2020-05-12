@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Firebase
+import SDWebImageSwiftUI
 
 struct ContentView: View {
     var body: some View {
@@ -83,41 +84,81 @@ struct ContentView_Previews: PreviewProvider {
     }
 }
 
+
+
+
+
+
 struct Home : View {
+    
+     @ObservedObject var observed = observer()
+    @State var show = false
+    @State var user = ""
+    @State var url = ""
+    
+    
     var body : some View {
         ScrollView(.vertical, showsIndicators: false){
             VStack{
         
+                //Ust tarafta gorulen profil resimleri
                 ScrollView(.horizontal, showsIndicators: false) {
                 
                     HStack{
-                        ForEach(0..<5){_ in
-                        
-                            StatusCard(imName: "testing").padding(.leading, 10)
-                        
-                        }
+                    
+                    ForEach(observed.status){i in
+                        //ust resim acilinca ustunde gonderen ismi yazmasi
+                        StatusCard(imName: i.image, user: i.name, show: self.$show, user1: self.$user, url: self.$url).padding(.leading, 10)
                     }
                 }
+                
+                
                 ForEach(0..<8){_ in
                 
                     postCard(user: "",image: "", id: "")
                 
                 }
             }
-        }
+            }.sheet(isPresented: $show){
+                statusView(url: self.url,name: self.user)
+            }
     }
 }
-struct StatusCard : View{
+
+
+
+
+
+
+//Profil resminin cercevesi
+
+struct StatusCard : View {
+    
     var imName = ""
+    var user = ""
+    @Binding var show : Bool
+    @Binding var user1 : String
+    @Binding var url : String
+    
     var body : some View{
-        
-        Image(imName)
-            .resizable()
-            .frame(width: 60 , height: 60)
-            .clipShape(Circle())
-        
+     
+            
+
+            AnimatedImage(url: URL(string: imName))
+                .resizable()
+                .frame(width: 80, height: 80)
+                .clipShape(Circle())
+                .onTapGesture {
+                    
+                    self.user1 = self.user
+                    self.url = self.imName
+                    self.show.toggle()
+                    
+            }
     }
 }
+
+
 
 struct postCard : View{
     
@@ -176,3 +217,72 @@ struct postCard : View{
     }
 }
 
+
+//Firebaseden profil resmi cekme
+
+class observer : ObservableObject{
+
+@Published var status = [datatype]()
+
+init() {
+    
+    let db = Firestore.firestore()
+    db.collection("status").addSnapshotListener { (snap, err) in
+        
+        if err != nil{
+            
+            print((err?.localizedDescription)!)
+            return
+        }
+        
+        for i in snap!.documentChanges{
+            
+            if i.type == .added{
+                
+                let id = i.document.documentID
+                let name = i.document.get("name") as! String
+                let image = i.document.get("image") as! String
+                
+                self.status.append(datatype(id: id, name: name, image: image))
+            }
+        }
+        
+    }
+    
+    }
+    
+}
+
+struct datatype : Identifiable {
+    
+    var id : String
+    var name : String
+    var image : String
+}
+
+struct statusView : View {
+    
+    var url = ""
+    var name = ""
+    
+    
+    //ust resimlerin boyut yapilandirmasi
+    var body : some View{
+        
+        ZStack{
+            
+            AnimatedImage(url: URL(string: url)).resizable()
+            
+            VStack{
+                
+                HStack{
+                    
+                    Text(name).font(.headline).fontWeight(.heavy).padding()
+                    Spacer()
+                }
+                Spacer()
+            }
+        }
+    }
+    }
+}
