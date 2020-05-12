@@ -145,14 +145,20 @@ struct StatusCard : View{
     
     var body : some View{
         
-        AnimatedImage(url: URL(string: imName))
-            .resizable()
-            .frame(width: 80 , height: 80)
-            .clipShape(Circle())
-            .onTapGesture {
-                self.user1=self.user
-                self.url = self.imName
-                self.show.toggle()
+        VStack{
+
+             AnimatedImage(url: URL(string: imName))
+                 .resizable()
+                 .frame(width: 80 , height: 80)
+                 .clipShape(Circle())
+                 .onTapGesture {
+             
+                    self.user1=self.user
+                     self.url = self.imName
+                     self.show.toggle()
+            
+            }
+            Text(user).fontWeight(.light)
         }
     }
 }
@@ -245,12 +251,24 @@ init() {
                 
                 self.status.append(datatype(id: id, name: name, image: image))
             }
+            
+            if i.type == .removed{
+                               
+                               let id = i.document.documentID
+                               
+                               
+                               for j in 0..<self.status.count{
+                                   
+                                   if self.status[j].id == id{
+                                       
+                                       self.status.remove(at: j)
+                                       return
+                                   }
+                               }
+                           }
+            }
         }
-        
     }
-    
-    }
-    
 }
 
 struct datatype : Identifiable {
