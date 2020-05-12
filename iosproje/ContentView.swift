@@ -92,21 +92,29 @@ struct ContentView_Previews: PreviewProvider {
 struct Home : View {
     
      @ObservedObject var observed = observer()
+     @State var show = false
+     @State var user = ""
+     @State var url = ""
     
-    var body : some View {
-        ScrollView(.vertical, showsIndicators: false){
-            VStack{
+    var body : some View{
+    
+    
+    ScrollView(.vertical, showsIndicators: false) {
         
+        VStack{
+        
+                //Ust tarafta gorulen profil resimleri
                 ScrollView(.horizontal, showsIndicators: false) {
-                
+                    
                     HStack{
-                       ForEach(observed.status){i in
-                                                   
-           StatusCard(imName: i.image).padding(.leading, 10)
-                                               }
+                        
+                        ForEach(observed.status){i in
+                            
+                            StatusCard(imName: i.image, user: i.name, show: self.$show, user1: self.$user, url: self.$url).padding(.leading, 10)
+                        }
+                        
                     }
-                }
-                
+            }
                 
                 ForEach(0..<8){_ in
                 
@@ -114,7 +122,10 @@ struct Home : View {
                 
                 }
             }
-        }.animation(.spring())
+          }.sheet(isPresented: $show) {
+                     
+                     statusView(url: self.url,name: self.user)
+        }
     }
 }
 
@@ -127,13 +138,22 @@ struct Home : View {
 
 struct StatusCard : View{
     var imName = ""
+    var user = ""
+    @Binding var show : Bool
+    @Binding var user1 : String
+    @Binding var url : String
+    
     var body : some View{
         
         AnimatedImage(url: URL(string: imName))
             .resizable()
             .frame(width: 80 , height: 80)
             .clipShape(Circle())
-        
+            .onTapGesture {
+                self.user1=self.user
+                self.url = self.imName
+                self.show.toggle()
+        }
     }
 }
 
@@ -238,4 +258,29 @@ struct datatype : Identifiable {
     var id : String
     var name : String
     var image : String
+}
+
+struct statusView : View {
+    
+    var url = ""
+    var name = ""
+    
+    var body : some View{
+        
+        ZStack{
+            
+            AnimatedImage(url: URL(string: url)).resizable()
+            
+            VStack{
+                
+                HStack{
+                    
+                    Text(name).font(.headline).fontWeight(.heavy).padding()
+                    Spacer()
+                }
+                Spacer()
+            }
+        }
+        
+    }
 }
