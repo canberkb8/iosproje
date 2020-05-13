@@ -206,6 +206,8 @@ struct postCard : View {
                 
                 Button(action: {
                     
+// LIKELARIN UPDATE ISLEMI
+                    
                 }) {
                     
                     Image("comment").resizable().frame(width: 26, height: 26)
@@ -302,7 +304,7 @@ class observer : ObservableObject{
 }
 
 // ---------------------------------------------- POSTOBSERVER
-
+// SUREKLI OLARAK YENI GONDERI VAR MI DIYE TAKIP EDIYOR
 class Postsobserver : ObservableObject{
     
     @Published var posts = [datatype1]()
@@ -346,6 +348,22 @@ class Postsobserver : ObservableObject{
                         }
                     }
                 }
+// YENI LIKE TAKIBI
+                if i.type == .modified{
+                                   
+                                   let id = i.document.documentID
+                                   let likes = i.document.get("likes") as! String
+                                   
+                                   for j in 0..<self.posts.count {
+                                       
+                                       if self.posts[j].id == id{
+                                           
+                                           self.posts[j].likes = likes
+                                           return
+                                       }
+                                   }
+                                   
+                               }
             }
         }
     }
