@@ -10,6 +10,7 @@ target 'iosproje' do
   pod 'Firebase/Database'
   pod 'Firebase/Auth'
   pod 'Firebase/Core'
+  pod 'GoogleSignIn'
 
   # Pods for iosproje
 

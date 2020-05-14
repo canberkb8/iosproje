@@ -15,7 +15,7 @@
 		4D684BBE2453317E00FDC719 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4D684BBD2453317E00FDC719 /* Preview Assets.xcassets */; };
 		4D684BC12453317E00FDC719 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4D684BBF2453317E00FDC719 /* LaunchScreen.storyboard */; };
 		4D684BC92453364F00FDC719 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4D684BC82453364F00FDC719 /* GoogleService-Info.plist */; };
-		4DB48433246B138C000C3495 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 4DB48432246B138C000C3495 /* SDWebImageSwiftUI */; };
+		4DB48433246B138C000C3495 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; productRef = 4DB48432246B138C000C3495 /* SwiftPackageProductDependency */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,7 +38,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4DB48433246B138C000C3495 /* SDWebImageSwiftUI in Frameworks */,
+				4DB48433246B138C000C3495 /* BuildFile in Frameworks */,
 				1190306D473FD5DAB5C21181 /* Pods_iosproje.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -116,6 +116,7 @@
 				4D684BAE2453317C00FDC719 /* Frameworks */,
 				4D684BAF2453317C00FDC719 /* Resources */,
 				7CF5CB4C736740384E41B8B1 /* [CP] Embed Pods Frameworks */,
+				7931A98670EB010E98C88748 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -123,7 +124,7 @@
 			);
 			name = iosproje;
 			packageProductDependencies = (
-				4DB48432246B138C000C3495 /* SDWebImageSwiftUI */,
+				4DB48432246B138C000C3495 /* SwiftPackageProductDependency */,
 			);
 			productName = iosproje;
 			productReference = 4D684BB12453317C00FDC719 /* iosproje.app */;
@@ -154,7 +155,7 @@
 			);
 			mainGroup = 4D684BA82453317C00FDC719;
 			packageReferences = (
-				4DB48431246B138B000C3495 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
+				4DB48431246B138B000C3495 /* RemoteSwiftPackageReference */,
 			);
 			productRefGroup = 4D684BB22453317C00FDC719 /* Products */;
 			projectDirPath = "";
@@ -200,6 +201,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		7931A98670EB010E98C88748 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-iosproje/Pods-iosproje-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-iosproje/Pods-iosproje-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-iosproje/Pods-iosproje-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		7CF5CB4C736740384E41B8B1 /* [CP] Embed Pods Frameworks */ = {
@@ -424,7 +442,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		4DB48431246B138B000C3495 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
+		4DB48431246B138B000C3495 /* RemoteSwiftPackageReference */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SDWebImage/SDWebImageSwiftUI.git";
 			requirement = {
@@ -435,9 +453,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		4DB48432246B138C000C3495 /* SDWebImageSwiftUI */ = {
+		4DB48432246B138C000C3495 /* SwiftPackageProductDependency */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 4DB48431246B138B000C3495 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
+			package = 4DB48431246B138B000C3495 /* RemoteSwiftPackageReference */;
 			productName = SDWebImageSwiftUI;
 		};
 /* End XCSwiftPackageProductDependency section */
