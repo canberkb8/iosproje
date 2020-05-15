@@ -745,19 +745,103 @@ struct imagePicker : UIViewControllerRepresentable{
     }
 }
 */
-struct Profile : View {
-    var body : some View{
-        Button(action: {
-            
-            
-            try! Auth.auth().signOut()
-            GIDSignIn.sharedInstance()?.signOut()
-            UserDefaults.standard.set(false, forKey: "status")
-            NotificationCenter.default.post(name: NSNotification.Name("statusChange"), object: nil)
-            
-        }) {
-            
-            Text("Logout")
+
+
+struct ImagePicker : UIViewControllerRepresentable{
+    @Binding var picker : Bool
+    @Binding var imagedata : Data
+    
+    func makeCoordinator() -> ImagePicker.Coordinator {
+        return ImagePicker.Coordinator(parent1: self)
+    }
+    func makeUIViewController(context: UIViewControllerRepresentableContext<ImagePicker>) -> UIImagePickerController {
+        
+        let picker = UIImagePickerController()
+        picker.sourceType = .photoLibrary
+        picker.delegate = context.coordinator
+        return picker
+    }
+    
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: UIViewControllerRepresentableContext<ImagePicker>) {
+        
+    }
+    
+    class Coordinator : NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate{
+        var parent : ImagePicker
+        init(parent1 : ImagePicker){
+            parent = parent1
         }
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            self.parent.picker.toggle()
+        }
+        
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            let image = info[.originalImage] as! UIImage
+            
+            let data = image.jpegData(compressionQuality: 0.45)
+            
+            self.parent.imagedata = data!
+            
+            self.parent.picker.toggle()
+        }
+    }
+}
+
+
+
+struct Profile : View {
+    
+    @State var imageData : Data = .init(count : 0)
+    @State var imagePicker = false
+    
+    // let myid = Auth.auth().currentUser?.uid   su ankı kullanıcı ıdsı
+    
+    // let db = Fırestore.firestore()
+    // db.collection("posts").document().setData(["img" : ])
+    
+    var body : some View{
+        
+        
+        VStack{
+            
+
+           Button(action: {
+               
+               
+            self.imagePicker.toggle()
+               
+               
+               
+           }) {
+               
+            if self.imageData.count == 0 {
+                Image(systemName: "person.crop.circle.badge.plus").resizable().frame(width:90, height:70).foregroundColor(.gray)
+            }else{
+                Image(uiImage: UIImage(data: self.imageData)!).resizable().renderingMode(.original).frame(width: 100, height: 100).clipShape(Circle())
+            }
+            
+           }
+            
+        
+            Button(action: {
+                
+                
+                try! Auth.auth().signOut()
+                GIDSignIn.sharedInstance()?.signOut()
+                UserDefaults.standard.set(false, forKey: "status")
+                NotificationCenter.default.post(name: NSNotification.Name("statusChange"), object: nil)
+                
+                
+                
+            }) {
+                
+                Text("Logout")
+            }
+        }
+        .sheet(isPresented: self.$imagePicker, content: {
+            
+            ImagePicker(picker: self.$imagePicker, imagedata: self.$imageData)
+        
+        })
     }
 }
