@@ -10,6 +10,7 @@ import SwiftUI
 import Firebase
 import SDWebImageSwiftUI
 import GoogleSignIn
+import FirebaseStorage
 
 
 // ---------------------------------------------- CONTENT VIEW
@@ -794,10 +795,10 @@ struct Profile : View {
     @State var imageData : Data = .init(count : 0)
     @State var imagePicker = false
     
-    // let myid = Auth.auth().currentUser?.uid   su ankı kullanıcı ıdsı
-    
-    // let db = Fırestore.firestore()
-    // db.collection("posts").document().setData(["img" : ])
+    let myid = Auth.auth().currentUser?.uid
+    let storage = Storage.storage().reference()
+    let db = Firestore.firestore()
+    var URL = ""
     
     var body : some View{
         
@@ -815,12 +816,27 @@ struct Profile : View {
            }) {
                
             if self.imageData.count == 0 {
-                Image(systemName: "person.crop.circle.badge.plus").resizable().frame(width:90, height:70).foregroundColor(.gray)
+                
+                
+                Image(systemName: "person.crop.circle.badge.plus").resizable().frame(width: 90, height: 70).foregroundColor(.gray)
+                
             }else{
+                
                 Image(uiImage: UIImage(data: self.imageData)!).resizable().renderingMode(.original).frame(width: 100, height: 100).clipShape(Circle())
+                
             }
             
            }
+            
+            Button(action: {
+                
+                profileImg(data: self.imageData)
+                
+                
+            }) {
+                
+                Text("Kaydet")
+            }
             
         
             Button(action: {
@@ -843,5 +859,49 @@ struct Profile : View {
             ImagePicker(picker: self.$imagePicker, imagedata: self.$imageData)
         
         })
+    }
+}
+
+ func profileImg(data: Data){
+     
+     let db = Firestore.firestore()
+     let storage = Storage.storage().reference()
+     var URL = ""
+     let myuid = Auth.auth().currentUser?.uid
+
+    
+    storage.child(myuid!).putData(data, metadata: nil) { (_,err) in
+         
+         if err != nil{
+             print((err?.localizedDescription)!)
+             return
+         }
+         storage.child(myuid!).downloadURL {(url,err)in
+             
+              db.collection("profileImg").document(myuid!).setData(["url":"\(url!)"]) { (err) in
+                        
+                if err != nil{
+                    print((err?.localizedDescription)!)
+                    return
+                }
+            }
+        }
+    }
+}
+
+func loadProfileData() {
+    
+    let db = Firestore.firestore()
+    let myuid = Auth.auth().currentUser?.uid
+    
+    
+    db.collection("profileImg").document(myuid!)
+    .getDocument { (document, error) in
+        if let document = document, document.exists {
+            let dataDescription = document.data().map(String.init(describing:)) ?? "nil"
+            print("Document data: \(dataDescription)")
+        } else {
+            print("Document does not exist")
+        }
     }
 }
