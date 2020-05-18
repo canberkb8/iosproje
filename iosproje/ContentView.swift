@@ -682,70 +682,6 @@ func signIupWithEmail(email: String,password : String,completion: @escaping (Boo
         completion(true,(res?.user.email)!)
     }
 }
-/*      ------------------------------     https://www.youtube.com/watch?v=zfJtgq609EE     dakika 8.37       -------------------------------
-struct sharedPage : View {
-    @State var shown = false
-    
-    var body : some View{
-        
-        Button(action: {
-            
-            self.shown.toggle()
-            
-        }) {
-            
-            Text("upload İmage")
-            
-        }.sheet(isPressented: $shown){
-            
-            imagePicker(shown: $shown)
-        }
-    }
-}
-
-struct imagePicker : UIViewControllerRepresentable{
-    func makeCoordinator() -> imagePicker.Coordinator {
-        
-        
-        return imagePicker.Coordinator(parent1 : self)
-    }
-    
-    
-    @Binding var shown : Bool
-    @Binding var data : Data
-    
-    func makeUIViewController(context: UIViewControllerRepresentableContext<imagePicker>) -> UIImagePickerController{
-        
-        let imagepic = UIImagePickerController()
-        imagepic.sourceType = .photoLibrary
-        return imagepic
-        
-    }
-    func updateUIViewController(_ uiViewController: UIImagePickerController, context: UIViewControllerRepresentableContext<imagePicker>) {
-        
-    }
-    class Coordinator : NSObject,UIImagePickerControllerDelegate,UINavigationControllerDelegate{
-        
-        var parent : imagePicker!
-        init(parent1 : imagePicker){
-            
-            parent = parent1
-        }
-        
-        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-            
-            parent.shown.toggle()
-            
-        }
-        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-            
-            let image = info[.originalImage] as! UIImage
-            parent.data = image.jpegData(compressionQuality: 0.35)
-            
-        }
-    }
-}
-*/
 
 
 struct ImagePicker : UIViewControllerRepresentable{
@@ -792,6 +728,7 @@ struct ImagePicker : UIViewControllerRepresentable{
 
 struct Profile : View {
     
+    @State var username = ""
     @State var imageData : Data = .init(count : 0)
     @State var imagePicker = false
     
@@ -800,10 +737,15 @@ struct Profile : View {
     let db = Firestore.firestore()
     var URL = ""
     
+    
     var body : some View{
         
+
         
         VStack{
+            
+            
+           TextField("Enter Your Nickname", text: $username)
             
 
            Button(action: {
@@ -830,8 +772,15 @@ struct Profile : View {
             
             Button(action: {
                 
-                profileImg(data: self.imageData)
-                
+                if self.username == ""{
+                    
+                     saveProfileImg(data: self.imageData , name: "User")
+                    
+                }else{
+                    
+                    saveProfileImg(data: self.imageData , name: self.username)
+                    
+                }
                 
             }) {
                 
@@ -853,6 +802,17 @@ struct Profile : View {
                 
                 Text("Logout")
             }
+            
+            Button(action: {
+                
+                
+                getProfileData()
+                
+            }) {
+                
+                Text("getData")
+            }
+            
         }
         .sheet(isPresented: self.$imagePicker, content: {
             
@@ -862,7 +822,7 @@ struct Profile : View {
     }
 }
 
- func profileImg(data: Data){
+ func saveProfileImg(data: Data ,name: String){
      
      let db = Firestore.firestore()
      let storage = Storage.storage().reference()
@@ -870,7 +830,7 @@ struct Profile : View {
      let myuid = Auth.auth().currentUser?.uid
 
     
-    storage.child(myuid!).putData(data, metadata: nil) { (_,err) in
+    storage.child(myuid!).putData(data, metadata: nil ) { (_,err) in
          
          if err != nil{
              print((err?.localizedDescription)!)
@@ -878,7 +838,7 @@ struct Profile : View {
          }
          storage.child(myuid!).downloadURL {(url,err)in
              
-              db.collection("profileImg").document(myuid!).setData(["url":"\(url!)"]) { (err) in
+            db.collection("profileImg").document(myuid!).setData(["image":"\(url!)", "name": name]) { (err) in
                         
                 if err != nil{
                     print((err?.localizedDescription)!)
@@ -889,19 +849,28 @@ struct Profile : View {
     }
 }
 
-func loadProfileData() {
+func getProfileData () {
     
-    let db = Firestore.firestore()
     let myuid = Auth.auth().currentUser?.uid
+    let db = Firestore.firestore()
     
-    
-    db.collection("profileImg").document(myuid!)
-    .getDocument { (document, error) in
-        if let document = document, document.exists {
-            let dataDescription = document.data().map(String.init(describing:)) ?? "nil"
-            print("Document data: \(dataDescription)")
-        } else {
-            print("Document does not exist")
+    db.collection("profileImg").addSnapshotListener { (snap, err) in
+            
+        if err != nil{
+                
+            print((err?.localizedDescription)!)
+            return
+        }
+            
+    for i in snap!.documentChanges{
+            
+        let id = i.document.documentID
+                
+                if id == myuid{
+                            
+                    let name = i.document.get("name") as! String
+                    let data = i.document.get("image") as! String
+            }
         }
     }
 }
