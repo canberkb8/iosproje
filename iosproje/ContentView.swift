@@ -144,7 +144,7 @@ struct homePage : View {
                         Image("home")
                     }
                     
-                    Text("Upload").tabItem {
+                    sharedPage().tabItem {
                         
                         Image("plus")
                     }
@@ -720,11 +720,94 @@ struct ImagePicker : UIViewControllerRepresentable{
             self.parent.imagedata = data!
             
             self.parent.picker.toggle()
+           
         }
     }
 }
 
-
+struct sharedPage : View {
+    
+    @State var imageData : Data = .init(count : 0)
+    @State var imagePicker = false
+    
+    let myid = Auth.auth().currentUser?.uid
+    let storage = Storage.storage().reference()
+    let db = Firestore.firestore()
+    @State var profilenamedata = ""
+    @State var profileimagedata = ""
+    
+    var body : some View {
+        
+        VStack{
+            
+            
+            if self.imagePicker == true {
+                
+                 ImagePicker(picker: self.$imagePicker, imagedata: self.$imageData)
+            }
+           
+            if self.imageData.count != 0 && self.imagePicker == false {
+                
+                GeometryReader{ geo in
+                    
+                    Text("Paylaş").font(.title).padding(.top,15).foregroundColor(.black).frame(width: geo.size.width,height: 15).multilineTextAlignment(.center)
+                    
+                    Button(action:{
+                        self.imagePicker.toggle()
+                    }){
+                        Image(uiImage: UIImage(data: self.imageData)!).resizable().renderingMode(.original).frame(width: geo.size.width, height: geo.size.height-30).padding(.top, 35)
+                    }
+                   
+                }
+                
+            }
+            if self.imagePicker == false {
+                
+                Button(action: {
+                                  
+                    savePostData(data: self.imageData, name: self.profilenamedata, image1: self.profileimagedata)
+                    
+                }) {
+                                
+                    Text("Paylaş").foregroundColor(.white).frame(width: 120, height: 50, alignment: .center)
+                                
+                }.background(Color("backgroundGrey")).clipShape(Capsule())
+            }
+           
+        }.onAppear(){
+            self.imagePicker.toggle()
+                self.getProfileData()
+        }
+    
+    }
+    
+    func getProfileData () {
+        
+        let myuid = Auth.auth().currentUser?.uid
+        let db = Firestore.firestore()
+        
+        db.collection("profileImg").addSnapshotListener { (snap, err) in
+                
+            if err != nil{
+                    
+                print((err?.localizedDescription)!)
+                return
+            }
+                
+        for i in snap!.documentChanges{
+                
+            let id = i.document.documentID
+                    
+                    if id == myuid{
+                        
+                        self.profilenamedata = i.document.get("name") as! String
+                        self.profileimagedata = i.document.get("image") as! String
+                }
+            }
+        }
+    }
+    
+}
 
 struct Profile : View {
     
@@ -735,40 +818,47 @@ struct Profile : View {
     let myid = Auth.auth().currentUser?.uid
     let storage = Storage.storage().reference()
     let db = Firestore.firestore()
-    var URL = ""
-    
-    
+    @State var profilenamedata = ""
+    @State var profileimagedata = ""
     var body : some View{
-        
-
         
         VStack{
             
-            
-           TextField("Enter Your Nickname", text: $username)
-            
-
            Button(action: {
                
                
             self.imagePicker.toggle()
-               
-               
-               
+              
            }) {
                
             if self.imageData.count == 0 {
                 
+               if self.profileimagedata != nil {
                 
-                Image(systemName: "person.crop.circle.badge.plus").resizable().frame(width: 90, height: 70).foregroundColor(.gray)
+                AnimatedImage(url: URL(string: self.profileimagedata)).resizable().frame(width: 200, height: 200).clipShape(Circle())
+
+                }else{
+                      Image(systemName: "person.crop.circle.badge.plus").resizable().frame(width: 180, height: 150).foregroundColor(.gray)
+               }
+              
+            }else{
+                
+                Image(uiImage: UIImage(data: self.imageData)!).resizable().renderingMode(.original).frame(width: 200, height: 200).clipShape(Circle())
+                
+            }
+           }
+            
+            if self.profilenamedata != nil{
+                
+                TextField(self.profilenamedata, text: $username).padding(.top,40).multilineTextAlignment(.center)
                 
             }else{
                 
-                Image(uiImage: UIImage(data: self.imageData)!).resizable().renderingMode(.original).frame(width: 100, height: 100).clipShape(Circle())
+                TextField("Enter Your Nickname", text: $username).padding(.top,40).multilineTextAlignment(.center)
                 
             }
-            
-           }
+               
+            HStack{
             
             Button(action: {
                 
@@ -784,7 +874,7 @@ struct Profile : View {
                 
             }) {
                 
-                Text("Kaydet")
+                Text("Kaydet").font(.largeTitle).padding(20).foregroundColor(.gray)
             }
             
         
@@ -800,18 +890,9 @@ struct Profile : View {
                 
             }) {
                 
-                Text("Logout")
+                Text("Logout").font(.largeTitle).padding(20).foregroundColor(.red)
             }
-            
-            Button(action: {
-                
-                
-                getProfileData()
-                
-            }) {
-                
-                Text("getData")
-            }
+        }
             
         }
         .sheet(isPresented: self.$imagePicker, content: {
@@ -819,14 +900,45 @@ struct Profile : View {
             ImagePicker(picker: self.$imagePicker, imagedata: self.$imageData)
         
         })
+            .onAppear(){
+                self.getProfileData()
+        }
     }
+    
+    
+    
+    func getProfileData () {
+        
+        let myuid = Auth.auth().currentUser?.uid
+        let db = Firestore.firestore()
+        
+        db.collection("profileImg").addSnapshotListener { (snap, err) in
+                
+            if err != nil{
+                    
+                print((err?.localizedDescription)!)
+                return
+            }
+                
+        for i in snap!.documentChanges{
+                
+            let id = i.document.documentID
+                    
+                    if id == myuid{
+                        
+                        self.profilenamedata = i.document.get("name") as! String
+                        self.profileimagedata = i.document.get("image") as! String
+                }
+            }
+        }
+    }
+ 
 }
 
  func saveProfileImg(data: Data ,name: String){
      
      let db = Firestore.firestore()
      let storage = Storage.storage().reference()
-     var URL = ""
      let myuid = Auth.auth().currentUser?.uid
 
     
@@ -849,28 +961,33 @@ struct Profile : View {
     }
 }
 
-func getProfileData () {
+func savePostData(data: Data ,name: String,image1: String){
+     
+     let db = Firestore.firestore()
+     let storage = Storage.storage().reference()
     
-    let myuid = Auth.auth().currentUser?.uid
-    let db = Firestore.firestore()
+    let number1 = Int.random(in:1..<100000)
+    let number2 = Int.random(in:1..<100000)
     
-    db.collection("profileImg").addSnapshotListener { (snap, err) in
-            
-        if err != nil{
-                
-            print((err?.localizedDescription)!)
-            return
-        }
-            
-    for i in snap!.documentChanges{
-            
-        let id = i.document.documentID
-                
-                if id == myuid{
-                            
-                    let name = i.document.get("name") as! String
-                    let data = i.document.get("image") as! String
+    let result = String(number1*number2)+name
+
+    
+    storage.child(result).putData(data, metadata: nil ) { (_,err) in
+         
+         if err != nil{
+             print((err?.localizedDescription)!)
+             return
+         }
+         storage.child(result).downloadURL {(url,err)in
+             
+            db.collection("posts").document().setData(["image":"\(url!)", "name": name, "image1": image1, "likes":"0","comments":"0"]) { (err) in
+                        
+                if err != nil{
+                    print((err?.localizedDescription)!)
+                    return
+                }
             }
         }
     }
 }
+
