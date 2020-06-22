@@ -833,7 +833,7 @@ struct Profile : View {
                
             if self.imageData.count == 0 {
                 
-               if self.profileimagedata != nil {
+                if self.profileimagedata != "" {
                 
                 AnimatedImage(url: URL(string: self.profileimagedata)).resizable().frame(width: 200, height: 200).clipShape(Circle())
 
@@ -848,7 +848,7 @@ struct Profile : View {
             }
            }
             
-            if self.profilenamedata != nil{
+            if self.profilenamedata != "" {
                 
                 TextField(self.profilenamedata, text: $username).padding(.top,40).multilineTextAlignment(.center)
                 
@@ -864,7 +864,7 @@ struct Profile : View {
                 
                 if self.username == ""{
                     
-                     saveProfileImg(data: self.imageData , name: "User")
+                     saveProfileImg(data: self.imageData , name: "Kullanıcı İsmi")
                     
                 }else{
                     
